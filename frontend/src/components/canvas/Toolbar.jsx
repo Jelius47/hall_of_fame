@@ -198,11 +198,14 @@ const Toolbar = ({ onExport }) => {
   ];
 
   const fonts = [
+    { value: 'Caveat', label: 'Caveat (Handwriting)' },
+    { value: 'Indie Flower', label: 'Indie Flower' },
+    { value: 'Patrick Hand', label: 'Patrick Hand' },
+    { value: 'Shadows Into Light', label: 'Shadows Into Light' },
+    { value: 'Permanent Marker', label: 'Permanent Marker' },
     { value: 'Virgil', label: 'Virgil (Excalidraw)' },
     { value: 'Arial', label: 'Arial' },
     { value: 'Georgia', label: 'Georgia' },
-    { value: 'Courier New', label: 'Courier' },
-    { value: 'Comic Sans MS', label: 'Comic Sans' },
   ];
 
   const emojis = [

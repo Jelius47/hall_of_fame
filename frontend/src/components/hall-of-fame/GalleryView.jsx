@@ -117,6 +117,33 @@ const ArtistInfo = styled.div`
   margin-bottom: 1rem;
 `;
 
+const QuoteText = styled.p`
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  color: var(--ink);
+  font-style: italic;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(212, 175, 55, 0.05);
+  border-left: 3px solid var(--gold);
+  border-radius: 4px;
+  line-height: 1.4;
+
+  &:before {
+    content: '"';
+    color: var(--gold);
+    font-size: 1.5rem;
+    margin-right: 0.25rem;
+  }
+
+  &:after {
+    content: '"';
+    color: var(--gold);
+    font-size: 1.5rem;
+    margin-left: 0.25rem;
+  }
+`;
+
 const Stats = styled.div`
   display: flex;
   gap: 1.5rem;
@@ -243,6 +270,10 @@ const GalleryView = () => {
                 <User size={16} />
                 {artwork.artist?.artist_name || 'Unknown Artist'}
               </ArtistInfo>
+
+              {artwork.description && (
+                <QuoteText>{artwork.description}</QuoteText>
+              )}
 
               <Stats>
                 <Stat>

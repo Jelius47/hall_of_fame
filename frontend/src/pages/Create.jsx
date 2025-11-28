@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { Save, Upload } from 'lucide-react';
+import { Save, Upload, MessageSquare } from 'lucide-react';
 import DrawingBoard from '../components/canvas/DrawingBoard';
 import Toolbar from '../components/canvas/Toolbar';
 import ArtClaim from '../components/quest/ArtClaim';
@@ -33,6 +33,81 @@ const Subtitle = styled.p`
 
 const CanvasSection = styled.div`
   margin-bottom: 2rem;
+`;
+
+const MetadataSection = styled.div`
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.1);
+`;
+
+const MetadataTitle = styled.h3`
+  color: var(--ink);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const InputGroup = styled.div`
+  margin-bottom: 1rem;
+`;
+
+const Label = styled.label`
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem;
+  color: var(--ink);
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  &::placeholder {
+    color: var(--textLight);
+    opacity: 0.6;
+  }
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem;
+  color: var(--ink);
+  min-height: 100px;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  &::placeholder {
+    color: var(--textLight);
+    opacity: 0.6;
+  }
 `;
 
 const Actions = styled.div`
@@ -87,6 +162,8 @@ const Create = () => {
   const [artworkPreview, setArtworkPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [quote, setQuote] = useState('');
+  const [title, setTitle] = useState('');
 
   const { isAuthenticated } = useAuthStore();
   const { lines, getCanvasData } = useCanvasStore();
@@ -121,6 +198,14 @@ const Create = () => {
       formData.append('canvas_data', getCanvasData());
       formData.append('width', '800');
       formData.append('height', '600');
+
+      // Add title and quote if provided
+      if (title.trim()) {
+        formData.append('title', title.trim());
+      }
+      if (quote.trim()) {
+        formData.append('description', quote.trim());
+      }
 
       // Upload artwork
       const response = await artworksAPI.upload(formData);
@@ -164,6 +249,34 @@ const Create = () => {
         <Toolbar onExport={handleExport} />
         <DrawingBoard ref={stageRef} />
       </CanvasSection>
+
+      <MetadataSection>
+        <MetadataTitle>
+          <MessageSquare size={24} color="#d4af37" />
+          Add Your Story (Optional)
+        </MetadataTitle>
+
+        <InputGroup>
+          <Label>Artwork Title</Label>
+          <Input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Give your masterpiece a name..."
+            maxLength={200}
+          />
+        </InputGroup>
+
+        <InputGroup>
+          <Label>Your Quote or Message</Label>
+          <TextArea
+            value={quote}
+            onChange={(e) => setQuote(e.target.value)}
+            placeholder="Share your thoughts, inspiration, or a meaningful quote..."
+            maxLength={500}
+          />
+        </InputGroup>
+      </MetadataSection>
 
       <Actions>
         <Button

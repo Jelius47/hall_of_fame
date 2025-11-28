@@ -14,7 +14,7 @@ const useCanvasStore = create((set, get) => ({
 
   // Text settings
   fontSize: 24,
-  fontFamily: 'Virgil',
+  fontFamily: 'Caveat',
   textInput: '',
 
   // Emoji settings
