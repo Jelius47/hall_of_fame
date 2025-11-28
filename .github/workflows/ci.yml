@@ -219,16 +219,26 @@ jobs:
 
       - name: Health Check
         run: |
-          echo "Waiting for services to be fully ready..."
-          sleep 45
-          curl -f http://${{ secrets.SERVER_HOST }}/api/health || \
-          curl -f http://${{ secrets.SERVER_HOST }}:8000/api/health || \
-          echo "Health check failed - but deployment may still be successful"
+          echo "Waiting for services to start..."
+          sleep 30
 
-      - name: Notify Success
-        if: success()
-        run: |
-          echo "✅ Deployment successful!"
-          echo "🌐 Frontend: http://${{ secrets.SERVER_HOST }}"
-          echo "🔧 Backend API: http://${{ secrets.SERVER_HOST }}:8000"
-          echo "🐳 Images: ghcr.io/${{ lower(github.repository) }}"
+          echo "Testing backend endpoints..."
+          # Try multiple possible health endpoints
+          if curl -f "http://${{ secrets.SERVER_HOST }}:8000/api/health" || \
+              curl -f "http://${{ secrets.SERVER_HOST }}:8000/health" || \
+              curl -f "http://${{ secrets.SERVER_HOST }}:8000/" || \
+              curl -f "http://${{ secrets.SERVER_HOST }}:8000/api/docs"; then
+            echo "✅ Backend is responding"
+          else
+            echo "❌ Backend is not responding properly"
+            exit 1
+          fi
+
+          echo "Testing frontend..."
+          if curl -f "http://${{ secrets.SERVER_HOST }}/" || \
+              curl -f "http://${{ secrets.SERVER_HOST }}/health"; then
+            echo "✅ Frontend is responding"
+          else
+            echo "❌ Frontend is not responding properly"
+            exit 1
+          fi
