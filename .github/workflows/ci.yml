@@ -13,8 +13,10 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE_NAME: ${{ github.repository }}/backend
-  FRONTEND_IMAGE_NAME: ${{ github.repository }}/frontend
+  # Convert repository name to lowercase for container registry
+  REPO_NAME: ${{ lower(github.repository) }}
+  BACKEND_IMAGE_NAME: ${{ lower(github.repository) }}/backend
+  FRONTEND_IMAGE_NAME: ${{ lower(github.repository) }}/frontend
 
 jobs:
   test-backend:
@@ -157,14 +159,14 @@ jobs:
           VITE_API_URL=${{ secrets.VITE_API_URL }}
 
           # GitHub Container Registry
-          GITHUB_REPOSITORY=${{ github.repository }}
+          GITHUB_REPOSITORY=${{ lower(github.repository) }}
           IMAGE_TAG=${{ github.sha }}
           EOF
 
       - name: Create updated docker-compose
         run: |
-          # Create a production docker-compose file
-          sed "s/\${GITHUB_REPOSITORY}/${{ github.repository }}/g" docker-compose.yml > docker-compose.prod.yml
+          # Create a production docker-compose file with lowercase repository names
+          sed "s/\${GITHUB_REPOSITORY}/${{ lower(github.repository) }}/g" docker-compose.yml > docker-compose.prod.yml
           sed -i "s/\${IMAGE_TAG}/${{ github.sha }}/g" docker-compose.prod.yml
 
       - name: Copy files to server
@@ -195,8 +197,8 @@ jobs:
             docker-compose -f docker-compose.prod.yml down
 
             # Pull the specific images we just built
-            docker pull ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
-            docker pull ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+            docker pull ghcr.io/${{ lower(github.repository) }}/backend:${{ github.sha }}
+            docker pull ghcr.io/${{ lower(github.repository) }}/frontend:${{ github.sha }}
 
             # Start new containers
             docker-compose -f docker-compose.prod.yml up -d
@@ -212,8 +214,8 @@ jobs:
             docker image prune -f
 
             echo "🚀 Deployment completed successfully!"
-            echo "📦 Backend: ghcr.io/${{ github.repository }}/backend:${{ github.sha }}"
-            echo "📦 Frontend: ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}"
+            echo "📦 Backend: ghcr.io/${{ lower(github.repository) }}/backend:${{ github.sha }}"
+            echo "📦 Frontend: ghcr.io/${{ lower(github.repository) }}/frontend:${{ github.sha }}"
 
       - name: Health Check
         run: |
@@ -229,4 +231,4 @@ jobs:
           echo "✅ Deployment successful!"
           echo "🌐 Frontend: http://${{ secrets.SERVER_HOST }}"
           echo "🔧 Backend API: http://${{ secrets.SERVER_HOST }}:8000"
-          echo "🐳 Images: ghcr.io/${{ github.repository }}"
+          echo "🐳 Images: ghcr.io/${{ lower(github.repository) }}"
