@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL Database
@@ -24,9 +24,7 @@ services:
 
   # Backend API
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY}/backend:${IMAGE_TAG:-latest}
     container_name: canvasquest_backend
     restart: always
     environment:
@@ -36,7 +34,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-canvasquest}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-canvasquest}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
     volumes:
-      - ./backend/uploads:/app/uploads
+      - backend_uploads:/app/uploads
     ports:
       - "8000:8000"
     depends_on:
@@ -52,11 +50,7 @@ services:
 
   # Frontend (Nginx + React build)
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000/api}
+    image: ghcr.io/${GITHUB_REPOSITORY}/frontend:${IMAGE_TAG:-latest}
     container_name: canvasquest_frontend
     restart: always
     ports:
@@ -67,7 +61,7 @@ services:
     networks:
       - app-network
     volumes:
-      - ./nginx/ssl:/etc/nginx/ssl:ro  # SSL certificates (optional)
+      - ./nginx/ssl:/etc/nginx/ssl:ro # SSL certificates (optional)
 
 networks:
   app-network:
@@ -75,4 +69,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  backend_uploads:
     driver: local
